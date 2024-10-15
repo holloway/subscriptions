@@ -1,6 +1,9 @@
 <template>
   <div>
     <NuxtRouteAnnouncer />
-    <NuxtWelcome />
+
+    <h1>Email addresses</h1>
+
+    <table></table>
   </div>
 </template>

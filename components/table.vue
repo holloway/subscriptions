@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th v-for="columnsKey in columnKeys">
-          {{ columns[columnsKey].label }}
+          {{ columns[columnsKey] }}
         </th>
       </tr>
     </thead>
@@ -21,9 +21,10 @@
   setup
   lang="ts"
   generic="
-    Columns extends Record<string, { label: string | ReturnType<typeof h>; dataType: unknown }>,
-    Row extends { [I in keyof Columns]: Columns[I]['dataType'] },
-    RowFormatters extends { [I in keyof Columns]?: (val: Columns[I]['dataType']) => string | ReturnType<typeof h> }    
+    VueRenderable extends string | ReturnType<typeof h>,
+    Columns extends Record<string, VueRenderable>,
+    Row extends Record<keyof Columns, unknown>,
+    RowFormatters extends { [I in keyof Columns]?: (val: Row[I]) => VueRenderable }    
   "
 >
 type Props = {

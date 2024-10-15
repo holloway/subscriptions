@@ -1,22 +1,20 @@
 <template>
   <Table
     :columns="{
-      id: {
-        label: 'Id I guess',
-        dataType: '',
-      },
-      body: {
-        label: 'Id I guess',
-        dataType: [''],
-      },
+      id: '#Id',
+      body: 'Content',
     }"
-    :rows="[{ id: 'sdfsdf', body: [] }]"
+    :rows="[
+      { id: 'sdfsdf', body: ['sdf'] },
+      { id: 'sdfsdf', body: [0] },
+      { id: 'sdffsdf', body: false },
+    ]"
     :rowFormatters="{
-      id: (val) => {
-        return val;
-      },
       body: (val) => {
-        return '';
+        if (typeof val === "boolean") {
+            return val.toString()
+        }
+        return val.join(", ");
       },
     }"
   ></Table>
