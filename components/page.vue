@@ -1,20 +1,20 @@
 <template>
   <Table
     :columns="{
-      id: '#Id',
+      name: 'My id',
       body: 'Content',
     }"
     :rows="[
-      { id: 'sdfsdf', body: ['sdf'] },
-      { id: 'sdfsdf', body: [0] },
-      { id: 'sdffsdf', body: false },
+      { name: 'Jeff', body: ['sdf'] },
+      { name: 'Kevin', body: [0] },
+      { name: 'Bob', body: false },
     ]"
     :rowFormatters="{
       body: (val) => {
-        if (typeof val === "boolean") {
-            return val.toString()
+        if (typeof val === 'boolean') {
+          return val.toString();
         }
-        return val.join(", ");
+        return val.join(', ');
       },
     }"
   ></Table>

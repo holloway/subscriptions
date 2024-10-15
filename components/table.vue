@@ -3,14 +3,20 @@
     <thead>
       <tr>
         <th v-for="columnsKey in columnKeys">
-          {{ columns[columnsKey] }}
+          {{
+            columns[columnsKey]
+            // TODO handle h()
+          }}
         </th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="(row, index) in props.rows" :key="index">
         <td v-for="columnKey in columnKeys">
-          {{ row[columnKey] }}
+          {{
+            row[columnKey]
+            // TODO handle h()
+          }}
         </td>
       </tr>
     </tbody>
