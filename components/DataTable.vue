@@ -1,7 +1,7 @@
 <template>
-  <table>
-    <thead>
-      <tr>
+  <table :class="tableClass">
+    <thead :class="theadClass">
+      <tr :class="trClass">
         <th
           v-for="columnKey in columnKeys"
           :key="columnKey"
@@ -12,6 +12,7 @@
                 : 'descending'
               : undefined
           "
+          :class="thClass"
         >
           <template v-if="sortableColumns?.includes(columnKey)">
             <button
@@ -39,7 +40,7 @@
         </th>
       </tr>
     </thead>
-    <tbody>
+    <tbody :class="tbodyClass">
       <tr v-for="(row, index) in sortedRows" :key="index" :class="trClass">
         <td
           v-for="(columnKey, columnKeyIndex) in columnKeys"
@@ -49,9 +50,9 @@
           <component
             :is="columnKeyIndex === 0 && rowLink ? rowLink(row) : VFragment"
           >
-            <template v-if="rowFormatters?.[columnKey]">
+            <template v-if="cellFormatters?.[columnKey]">
               <Renderable
-                :val="rowFormatters[columnKey](row[columnKey] as any)"
+                :val="cellFormatters[columnKey](row[columnKey] as any, row)"
               />
             </template>
             <template v-else>
@@ -73,20 +74,52 @@
     ColumnKey extends keyof Columns,
     ColumnKeys extends ColumnKey[],
     Row extends Record<ColumnKey, unknown>,
-    RowFormatters extends { [I in ColumnKey]?: (val: Row[I]) => VueRenderable },
-    RowLink extends (val: Row) => ReturnType<typeof h>
+    CellFormatters extends { [I in ColumnKey]?: (cell: Row[I], row: Row) => VueRenderable },
+    RowLink extends (row: Row) => ReturnType<typeof h>
   "
 >
 import { orderBy } from 'lodash-es'
 import VFragment from './VFragment.vue'
 
 type Props = {
+  /**
+   * Definitions of columns and their labels
+   **/
   columns: Columns
+  /**
+   * The data of the table
+   **/
   rows: Row[]
-  rowFormatters?: RowFormatters
+  /**
+   * Formatters per cell in a row
+   */
+  cellFormatters?: CellFormatters
+  /**
+   * An optional wrapper link per row around the first cell.
+   *
+   * Devs should return a conventional link or an SPA link for the row.
+   *
+   * The link can be made to cover the whole row through CSS. Set `trClass` to a
+   * class resolving to `position: relative` (tailwind: `relative`) and return a link
+   * with a class resolving to `position: absolute; inset: 0` (tailwind: `absolute inset-0`)
+   *
+   * Troubleshooting: don't include 'children' in your returned link (3rd arg in `h()`)
+   *
+   * Usage:
+   * ```
+   * :rowLink="(row) => h('a', { href: `/{row.something}/info` })"
+   * ```
+   */
   rowLink?: RowLink
+  /**
+   * A list of columns which can be sorted clientside.
+   **/
   sortableColumns?: ColumnKeys
+  tableClass?: string
   trClass?: string
+  theadClass?: string
+  thClass?: string
+  tbodyClass?: string
   tdClass?: string
   sortButtonClass?: string
   sortAscIcon?: string | ReturnType<typeof h>

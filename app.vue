@@ -14,7 +14,7 @@
         { name: 'Kevin', body: [0] },
         { name: 'Bob', body: false }
       ]"
-      :rowFormatters="{
+      :cell-formatters="{
         body: (val) => {
           if (typeof val === 'boolean') {
             return `FORMATTED [${val.toString()}]`
@@ -25,8 +25,8 @@
           return h('h1', val)
         }
       }"
-      :sortableColumns="['body']"
-      :rowLink="
+      :sortable-columns="['body']"
+      :row-link="
         (row) => {
           return h('a', {
             class: 'absolutfe inset-0',
