@@ -16,6 +16,7 @@
         >
           <template v-if="sortableColumns?.includes(columnKey)">
             <button
+              type="button"
               @click="sortBy(columnKey)"
               :class="sortButtonClass"
               :aria-pressed="state.sortColumn === columnKey"
@@ -128,8 +129,8 @@ type Props = {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  trClass: 'relative',
-  buttonClass: 'bg-transparent p-0',
+  trClass: 'relative even:bg-gray-50 odd:bg-white',
+  buttonClass: 'bg-transparent p-0 border-none',
   sortAscIcon: '\u2193',
   sortDescIcon: '\u2191',
   unsortedIcon: ' '
