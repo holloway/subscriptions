@@ -20,9 +20,20 @@
             return `FORMATTED [${val.toString()}]`
           }
           return `FORMATTED [${val.join('|')}]`
+        },
+        name: (val) => {
+          return h('h1', val)
         }
       }"
       :sortableColumns="['body']"
+      :rowLink="
+        (row) => {
+          return h('a', {
+            class: 'absolutfe inset-0',
+            href: `/fdf/${row.body}/`
+          })
+        }
+      "
     />
   </div>
 </template>

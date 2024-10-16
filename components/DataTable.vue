@@ -13,8 +13,12 @@
               : undefined
           "
         >
-          <template v-if="sortableColumns?.includes(columnKey)">
-            <button @click="sortBy(columnKey)" :class="buttonClass">
+          <template v-if="props.sortableColumns?.includes(columnKey)">
+            <button
+              @click="sortBy(columnKey)"
+              :class="sortButtonClass"
+              :aria-pressed="state.sortColumn === columnKey"
+            >
               <Renderable :val="columns[columnKey]" />
               <template v-if="state.sortColumn === columnKey">
                 <template v-if="state.sortDirection === 'asc'">
@@ -37,8 +41,14 @@
     </thead>
     <tbody>
       <tr v-for="(row, index) in sortedRows" :key="index" :class="trClass">
-        <td v-for="columnKey in columnKeys" :key="columnKey" :class="tdClass">
-          <component :is="rowLink ? rowLink(row) : spanFactory()">
+        <td
+          v-for="(columnKey, columnKeyIndex) in columnKeys"
+          :key="columnKey"
+          :class="tdClass"
+        >
+          <component
+            :is="columnKeyIndex === 0 && rowLink ? rowLink(row) : VFragment"
+          >
             <template v-if="rowFormatters?.[columnKey]">
               <Renderable
                 :val="rowFormatters[columnKey](row[columnKey] as any)"
@@ -61,32 +71,35 @@
     VueRenderable extends string | ReturnType<typeof h>,
     Columns extends Record<string, VueRenderable>,
     ColumnKey extends keyof Columns,
+    ColumnKeys extends ColumnKey[],
     Row extends Record<ColumnKey, unknown>,
-    RowFormatters extends { [I in ColumnKey]?: (val: Row[I]) => VueRenderable }   
+    RowFormatters extends { [I in ColumnKey]?: (val: Row[I]) => VueRenderable },
+    RowLink extends (val: Row) => ReturnType<typeof h>
   "
 >
 import { orderBy } from 'lodash-es'
+import VFragment from './VFragment.vue'
 
 type Props = {
   columns: Columns
   rows: Row[]
   rowFormatters?: RowFormatters
-  rowLink?: (val: Row) => string
-  sortableColumns?: ColumnKey[]
+  rowLink?: RowLink
+  sortableColumns?: ColumnKeys
   trClass?: string
   tdClass?: string
-  buttonClass?: string
+  sortButtonClass?: string
   sortAscIcon?: string | ReturnType<typeof h>
   sortDescIcon?: string | ReturnType<typeof h>
   unsortedIcon?: string | ReturnType<typeof h>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  trClass: 'relative',
-  buttonClass: 'bg-transparent p-0',
-  sortAscIcon: '\u2193',
-  sortDescIcon: '\u2191',
-  unsortedIcon: ' '
+  // trClass: 'relative',
+  // buttonClass: 'bg-transparent p-0',
+  // sortAscIcon: '\u2193',
+  // sortDescIcon: '\u2191',
+  // unsortedIcon: ' '
 })
 
 const columnKeys = Object.keys(props.columns) as ColumnKey[]
@@ -115,8 +128,4 @@ const sortedRows = computed<Row[]>(() => {
     return props.rows
   }
 })
-
-function spanFactory() {
-  return h('span')
-}
 </script>
