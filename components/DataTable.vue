@@ -13,7 +13,7 @@
               : undefined
           "
         >
-          <template v-if="props.sortableColumns?.includes(columnKey)">
+          <template v-if="sortableColumns?.includes(columnKey)">
             <button
               @click="sortBy(columnKey)"
               :class="sortButtonClass"
@@ -22,14 +22,14 @@
               <Renderable :val="columns[columnKey]" />
               <template v-if="state.sortColumn === columnKey">
                 <template v-if="state.sortDirection === 'asc'">
-                  <Renderable :val="props.sortAscIcon" />
+                  <Renderable :val="sortAscIcon" />
                 </template>
                 <template v-else-if="state.sortDirection === 'desc'">
-                  <Renderable :val="props.sortDescIcon" />
+                  <Renderable :val="sortDescIcon" />
                 </template>
               </template>
               <template v-else>
-                <Renderable :val="props.unsortedIcon" />
+                <Renderable :val="unsortedIcon" />
               </template>
             </button>
           </template>
@@ -95,11 +95,11 @@ type Props = {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  // trClass: 'relative',
-  // buttonClass: 'bg-transparent p-0',
-  // sortAscIcon: '\u2193',
-  // sortDescIcon: '\u2191',
-  // unsortedIcon: ' '
+  trClass: 'relative',
+  buttonClass: 'bg-transparent p-0',
+  sortAscIcon: '\u2193',
+  sortDescIcon: '\u2191',
+  unsortedIcon: ' '
 })
 
 const columnKeys = Object.keys(props.columns) as ColumnKey[]
