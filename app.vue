@@ -6,8 +6,8 @@
 
     <DataTable
       :columns="{
-        body: 'Content',
-        name: columnName
+        name: formattedColumnName,
+        body: 'Content'
       }"
       :rows="[
         { name: 'Jeff', body: ['sdf'] },
@@ -22,9 +22,10 @@
           return `FORMATTED [${val.join('|')}]`
         }
       }"
+      :sortableColumns="['body']"
     />
   </div>
 </template>
 <script setup lang="ts">
-const columnName = h('b', 'My id')
+const formattedColumnName = h('b', 'My id')
 </script>
