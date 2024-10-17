@@ -1,5 +1,8 @@
 <template>
   <table :class="tableClass">
+    <caption v-if="caption">
+      <Renderable :val="caption" />
+    </caption>
     <thead :class="theadClass">
       <tr :class="trClass">
         <th
@@ -13,6 +16,7 @@
               : undefined
           "
           :class="thClass"
+          scope="col"
         >
           <template v-if="sortableColumns?.includes(columnKey)">
             <button
@@ -76,6 +80,7 @@
     ColumnKeys extends ColumnKey[],
     Row extends Record<ColumnKey, unknown>,
     CellFormatters extends { [I in ColumnKey]?: (cell: Row[I], row: Row) => VueRenderable },
+    SortFormatters extends { [I in ColumnKey]?: (cell: Row[I], row: Row) => number },
     RowLink extends (row: Row) => ReturnType<typeof h>
   "
 >
@@ -116,6 +121,15 @@ type Props = {
    * A list of columns which can be sorted clientside.
    **/
   sortableColumns?: ColumnKeys
+  /**
+   * Specifies the title of the table
+   * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption
+   **/
+  caption?: string | ReturnType<typeof h>
+  /**
+   * Format cell data for sorting, returning a number
+   **/
+  sortFormatters?: SortFormatters
   tableClass?: string
   trClass?: string
   theadClass?: string
@@ -157,6 +171,18 @@ function sortBy(columnKey: ColumnKey) {
 
 const sortedRows = computed<Row[]>(() => {
   if (state.sortColumn) {
+    const sortFormatter = props.sortFormatters?.[state.sortColumn as ColumnKey]
+    if (sortFormatter) {
+      return props.rows.toSorted((rowA, rowB) => {
+        const cellA = rowA[state.sortColumn as ColumnKey]
+        const cellB = rowB[state.sortColumn as ColumnKey]
+        const rowASortNumber = sortFormatter(cellA as any, rowA)
+        const rowBSortNumber = sortFormatter(cellB as any, rowB)
+        return state.sortDirection === 'asc'
+          ? rowASortNumber - rowBSortNumber
+          : rowBSortNumber - rowASortNumber
+      })
+    }
     return orderBy(props.rows, [state.sortColumn], [state.sortDirection])
   } else {
     return props.rows
