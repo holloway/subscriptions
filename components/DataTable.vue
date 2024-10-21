@@ -1,6 +1,6 @@
 <template>
   <table :class="tableClass">
-    <caption v-if="caption">
+    <caption v-if="caption" :class="captionClass">
       <Renderable :val="caption" />
     </caption>
     <thead :class="theadClass">
@@ -67,6 +67,9 @@
         </td>
       </tr>
     </tbody>
+    <tfoot v-if="$slots.tfoot">
+      <slot name="tfoot" :colSpanAll="Object.keys(props.columns).length" />
+    </tfoot>
   </table>
 </template>
 
@@ -80,7 +83,7 @@
     ColumnKeys extends ColumnKey[],
     Row extends Record<ColumnKey, unknown>,
     CellFormatters extends { [I in ColumnKey]?: (cell: Row[I], row: Row) => VueRenderable },
-    SortFormatters extends { [I in ColumnKey]?: (cell: Row[I], row: Row) => number },
+    Sort extends { [I in ColumnKey]?: (cellA: Row[I], cellB: Row[I], rowA: Row, rowB: Row) => number },
     RowLink extends (row: Row) => ReturnType<typeof h>
   "
 >
@@ -127,10 +130,11 @@ type Props = {
    **/
   caption?: string | ReturnType<typeof h>
   /**
-   * Format cell data for sorting, returning a number
+   * Custom sorting for rows
    **/
-  sortFormatters?: SortFormatters
+  sort?: Sort
   tableClass?: string
+  captionClass?: string
   trClass?: string
   theadClass?: string
   thClass?: string
@@ -143,8 +147,11 @@ type Props = {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  trClass: 'relative even:bg-gray-50 odd:bg-white',
-  buttonClass: 'bg-transparent p-0 border-none',
+  tableClass: 'border rounded',
+  trClass: 'relative even:bg-white odd:bg-gray-50',
+  thClass: 'p-2 border-r',
+  tdClass: 'p-2 border-r',
+  sortButtonClass: 'bg-transparent p-0 border-none block w-full',
   sortAscIcon: '\u2193',
   sortDescIcon: '\u2191',
   unsortedIcon: ' '
@@ -171,16 +178,13 @@ function sortBy(columnKey: ColumnKey) {
 
 const sortedRows = computed<Row[]>(() => {
   if (state.sortColumn) {
-    const sortFormatter = props.sortFormatters?.[state.sortColumn as ColumnKey]
-    if (sortFormatter) {
+    const columnSort = props.sort?.[state.sortColumn as ColumnKey]
+    if (columnSort) {
       return props.rows.toSorted((rowA, rowB) => {
         const cellA = rowA[state.sortColumn as ColumnKey]
         const cellB = rowB[state.sortColumn as ColumnKey]
-        const rowASortNumber = sortFormatter(cellA as any, rowA)
-        const rowBSortNumber = sortFormatter(cellB as any, rowB)
-        return state.sortDirection === 'asc'
-          ? rowASortNumber - rowBSortNumber
-          : rowBSortNumber - rowASortNumber
+        const sortNumber = columnSort(cellA as any, cellB as any, rowA, rowB)
+        return state.sortDirection === 'asc' ? sortNumber : -1 * sortNumber
       })
     }
     return orderBy(props.rows, [state.sortColumn], [state.sortDirection])
